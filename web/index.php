@@ -1,25 +1,12 @@
 <?php
 
-require('../vendor/autoload.php');
+// comment out the following two lines when deployed to production
+defined('YII_DEBUG') or define('YII_DEBUG', true);
+defined('YII_ENV') or define('YII_ENV', 'dev');
 
-$app = new Silex\Application();
-$app['debug'] = true;
+require(__DIR__ . '/../vendor/autoload.php');
+require(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');
 
-// Register the monolog logging service
-$app->register(new Silex\Provider\MonologServiceProvider(), array(
-  'monolog.logfile' => 'php://stderr',
-));
+$config = require(__DIR__ . '/../config/web.php');
 
-// Register view rendering
-$app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' => __DIR__.'/views',
-));
-
-// Our web handlers
-
-$app->get('/', function() use($app) {
-  $app['monolog']->addDebug('logging output.');
-  return $app['twig']->render('index.twig');
-});
-
-$app->run();
+(new yii\web\Application($config))->run();
