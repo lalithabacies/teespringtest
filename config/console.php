@@ -1,7 +1,5 @@
 <?php
 
-Yii::setAlias('@tests', dirname(__DIR__) . '/tests/codeception');
-
 $params = require(__DIR__ . '/params.php');
 $db = require(__DIR__ . '/db.php');
 
@@ -21,6 +19,10 @@ $config = [
                     'levels' => ['error', 'warning'],
                 ],
             ],
+        ],
+        'urlManager' => [
+        'class' => 'yii\web\UrlManager',
+        'scriptUrl' => 'http://localhost/tspring/web/'
         ],
         'db' => $db,
     ],

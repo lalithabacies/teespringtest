@@ -1,49 +1,99 @@
 <?php
+use yii\helpers\Url;
 
-/* @var $this yii\web\View */
-/* @var $form yii\bootstrap\ActiveForm */
-/* @var $model app\models\LoginForm */
-
-use yii\helpers\Html;
-use yii\bootstrap\ActiveForm;
-
-$this->title = 'Login';
-$this->params['breadcrumbs'][] = $this->title;
+$this->title =  Yii::$app->params['sitetitle'];
 ?>
-<div class="site-login">
-    <h1><?= Html::encode($this->title) ?></h1>
+<div class="main_page container">
 
-    <p>Please fill out the following fields to login:</p>
+<section class="caption col-sm-8 col-md-8">
+<h2>Welcome to</h2>
+<h1>Teespring Tools</h1>
+<h4>Teespring is a platform that makes it easy for anyone to create and 
+sell high quality product with no cost or risk. Teespring Tools is a 
+suite of tools that will make your selling tasks easier and quicker to get done.</h4>
 
-    <?php $form = ActiveForm::begin([
-        'id' => 'login-form',
-        'options' => ['class' => 'form-horizontal'],
-        'fieldConfig' => [
-            'template' => "{label}\n<div class=\"col-lg-3\">{input}</div>\n<div class=\"col-lg-8\">{error}</div>",
-            'labelOptions' => ['class' => 'col-lg-1 control-label'],
-        ],
-    ]); ?>
+<div id="loading" style="display:none;">
+		 <p><img src="https://s3-us-west-2.amazonaws.com/teespringtools/uploads/webimage/loading.gif"/> Please Wait</p>
+</div>
+	
+<?php 
 
-        <?= $form->field($model, 'username')->textInput(['autofocus' => true]) ?>
+		if(Yii::$app->session->hasFlash('RegisterFormSubmitted')){ ?>
 
-        <?= $form->field($model, 'password')->passwordInput() ?>
-
-        <?= $form->field($model, 'rememberMe')->checkbox([
-            'template' => "<div class=\"col-lg-offset-1 col-lg-3\">{input} {label}</div>\n<div class=\"col-lg-8\">{error}</div>",
-        ]) ?>
-		
-        <?= Html::a('New User?','../registration/create') ?>
-
-        <div class="form-group">
-            <div class="col-lg-offset-1 col-lg-11">
-                <?= Html::submitButton('Login', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
-            </div>
+        <div class="alert alert-success">
+            Your Registration Has Been Successfully Completed. 
         </div>
 
-    <?php ActiveForm::end(); ?>
+    <?php } else if(Yii::$app->session->hasFlash('success')){ ?>
+		<div class="alert alert-success">
+            <?= Yii::$app->session->getFlash('success'); ?>
+        </div>
+	<?php } ?>	
+	
+</section>
 
-    <div class="col-lg-offset-1" style="color:#999;">
-        You may login with <strong>admin/admin</strong> or <strong>demo/demo</strong>.<br>
-        To modify the username/password, please check out the code <code>app\models\User::$users</code>.
+<section class="section-account col-sm-4 col-md-4">
+    <div class="card contain-sm style-transparent">
+    <div class="card-body">&nbsp;
+    <div class="row">
+    <div class="col-sm-12 user-login">
+    <br>    
+    
+	
+	
+    <form action="http://dev-tshirtbomb.com/site/index" class="form floating-label">
+        <div class="form-group">
+        <input type="text" name="username" id="username" class="form-control">
+        <label for="username">Username</label>
+        </div>
+        <div class="form-group">
+        <input type="password" name="password" id="password" class="form-control">
+        <label for="password">Password</label>
+
+        </div>
+        <div class="col-xs-12 text-right">
+        <button type="button" id="login" class="btn btn-primary btn-raised">Login</button>
+        </div><!--end .col -->
+        <div class="row">
+
+        <div class="col-xs-6 text-left">
+        <div class="checkbox checkbox-inline checkbox-styled">
+        <label>
+        <input type="checkbox"> <span>Remember me</span>
+        </label>
+        </div>
+        </div>
+        <p class="help-block col-sm-6 col-md-6" id="forgot_pass"><a href="<?= Url::to(["site/request-password-reset"]); ?>">Forgot Password?</a></p>
+        </div><!--end .row -->
+        <p class="new_register">Didn't have account? <a class="new_user_login" href="<?= Url::to(["site/signup"]); ?>">Register here</a></p>
+        <input type="hidden" value="login" name="page">
+        <input type="hidden" value="test" name="abacies" data-myAttri="deep">
+    </form>
+    </div><!--end .col -->
     </div>
+    </div>
+    </div>
+    <div style="display: none;" id="rec_password" class="bpopup details">
+        <div class="col-md-12">
+        <img alt="" src="<?php echo Yii::getAlias('@web').'/images/closebutton.png' ?>" class="pull-right" id="pop_img_close">
+        </div>
+        <div class="alert alert-warning" role="alert">
+        <strong>Note!</strong> User details will be sent to your email id.
+        </div>
+        <div class="col-md-12">
+            <form method="post" action="" class="form floating-label">
+            <div class="form-group">
+            <input type="text" name="email" id="email" class="form-control">
+            <label for="email">Email</label>
+            </div>
+            <div class="col-sm-12 text-right">
+            <button type="button" id="recovery" class="btn btn-primary btn-raised">Submit</button>
+            </div>
+            </form>
+        </div>
+    </div>
+		<div class="alert alert-warning" role="alert" style='display:none;' id='loginerror'>
+        <strong>Note!</strong> Invalid Login Credential.
+        </div>	
+</section>
 </div>

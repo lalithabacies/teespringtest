@@ -1,21 +1,27 @@
 <?php
-
+//*** This Layout is used After Login ***
 /* @var $this \yii\web\View */
 /* @var $content string */
-
 use yii\helpers\Html;
-use yii\bootstrap\Nav;
-use yii\bootstrap\NavBar;
-use yii\widgets\Breadcrumbs;
-use app\assets\AppAsset;
 
+use app\assets\AppAsset;
 AppAsset::register($this);
+
+use yii\helpers\Url;
+$baseUrl = Url::home(true);
+$user = "";
+
+
+if(!Yii::$app->user->isGuest)  { 
+$user = app\models\UserProfile::findOne(Yii::$app->user->id);
+}
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>">
 <head>
     <meta charset="<?= Yii::$app->charset ?>">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
@@ -24,53 +30,103 @@ AppAsset::register($this);
 <body>
 <?php $this->beginBody() ?>
 
-<div class="wrap">
-    <?php
-    NavBar::begin([
-        'brandLabel' => 'My Company',
-        'brandUrl' => Yii::$app->homeUrl,
-        'options' => [
-            'class' => 'navbar-inverse navbar-fixed-top',
-        ],
-    ]);
-    echo Nav::widget([
-        'options' => ['class' => 'navbar-nav navbar-right'],
-        'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
-            Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/site/login']]
-            ) : (
-                '<li>'
-                . Html::beginForm(['/site/logout'], 'post', ['class' => 'navbar-form'])
-                . Html::submitButton(
-                    'Logout (' . Yii::$app->user->identity->username . ')',
-                    ['class' => 'btn btn-link']
-                )
-                . Html::endForm()
-                . '</li>'
-            )
-        ],
-    ]);
-    NavBar::end();
-    ?>
 
-    <div class="container">
-        <?= Breadcrumbs::widget([
-            'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
-        ]) ?>
-        <?= $content ?>
-    </div>
+	<!-- BEGIN HEADER-->
+	<header id="header" >
+		<div class="headerbar">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="headerbar-left">
+				<ul class="header-nav header-nav-options">
+					<li class="header-nav-brand" >
+						<div class="brand-holder">
+							<a href="<?= Url::to(["site/index"]); ?>">
+								<span class="text-lg text-bold text-primary">Teespring</span>
+							</a>
+						</div>
+					</li>
+					<?php if(!Yii::$app->user->isGuest)  { ?>
+					<li>
+						<a class="btn btn-icon-toggle menubar-toggle" data-toggle="menubar" href="javascript:void(0);">
+							<i class="fa fa-bars"></i>
+						</a>
+					</li>
+					<?php } ?>
+				</ul>
+			</div>
+			<!-- Collect the nav links, forms, and other content for toggling -->
+		<?php if(!Yii::$app->user->isGuest){ ?>
+			<div class="headerbar-right">
+				
+				<ul class="header-nav header-nav-profile">
+						<li class="dropdown">
+						<a href="javascript:void(0);" class="dropdown-toggle ink-reaction" data-toggle="dropdown">							
+							<span class="profile-info">
+								<?php if(isset($user->fullname))
+										echo $user->fullname;
+									?>		
+							</span>
+						</a>
+						<ul class="dropdown-menu animation-dock">
+							<?php if(!Yii::$app->user->isGuest)  { ?>
+							<li><a href="<?= Url::to(["user/my-profile"]); ?>">My profile</a></li>	
+						   <li><a href="<?= Url::to(["site/changepwd"]); ?>">Change Password</a></li>							
+							<?php } ?>
+							<li>
+							<?php 
+								echo Html::beginForm(['/site/logout'], 'get');
+								echo Html::submitButton('<i class="fa fa-fw fa-power-off text-danger"></i>Logout',['class' => 'btn btn-link logout']);
+							    echo Html::endForm();
+								
+								?>
+								
+							</li>
+						</ul><!--end .dropdown-menu -->
+					</li><!--end .dropdown -->
+				</ul><!--end .header-nav-profile -->
+			</div><!--end #header-navbar-collapse -->
+		<?php } ?>
+		</div>
+	</header>
+	<!-- END HEADER-->
+
+	<!-- BEGIN BASE-->
+	<div id="base">
+	
+	<!-- BEGIN CONTENT-->
+				<div id="content">
+					<section>
+						<div class="section-body">
+			
+							<?= $content ?>
+							
+						</div><!--end .section-body -->
+					</section>
+				</div><!--end #content-->
+				<!-- END CONTENT -->
+				
+		<!-- Left Side Menu Bar Begin Separate File  -->
+	<?php if(!Yii::$app->user->isGuest) { 
+			
+			echo \Yii::$app->view->renderFile('@app/views/layouts/leftsidemenu.php'); 
+		 } ?>	
+		<!-- Left Side Menu Bar End Separate File -->
+		
+	</div><!--end #base-->
+	<!-- END BASE -->
+
+
+<footer class="footer container-fluid">
+<div class="container">
+    <p class="pull-left">&copy;<?php echo date('Y'); ?> Teespring.</p> 
 </div>
-
-<footer class="footer">
-    <div class="container">
-        <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
-
-        <p class="pull-right"><?= Yii::powered() ?></p>
-    </div>
 </footer>
+
+<script>
+var _teespring_param = {
+   baseUrl :'<?php echo $baseUrl; ?>',
+   csrftoken : '<?php echo Yii::$app->request->getCsrfToken(); ?>',
+}
+</script>
 
 <?php $this->endBody() ?>
 </body>

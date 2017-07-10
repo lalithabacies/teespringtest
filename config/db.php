@@ -1,9 +1,12 @@
 <?php
 
+//Local
 return [
+
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=yii2basic',
-    'username' => 'root',
-    'password' => '',
+    'dsn' => 'pgsql:host=localhost;dbname=tshirtbomb',
+    'username' => 'postgres',
+    'password' => 'postgres',
     'charset' => 'utf8',
+
 ];

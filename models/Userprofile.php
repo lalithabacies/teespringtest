@@ -5,22 +5,30 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "userprofile".
+ * This is the model class for table "tshirt_users".
  *
- * @property integer $profileid
- * @property integer $userid
- * @property string $first_name
- * @property string $last_name
- * @property string $city
+ * @property integer $id
+ * @property string $username
+ * @property string $password
+ * @property string $email
+ * @property string $firstname
+ * @property string $lastname
+ * @property integer $status
+ * @property string $phone
+ * @property string $created_date
+ * @property string $last_date
  */
-class Userprofile extends \yii\db\ActiveRecord
+class UserProfile extends \yii\db\ActiveRecord
 {
+	
+	public $confirmpassword;
+		
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'userprofile';
+        return 'tshirt_users';
     }
 
     /**
@@ -29,23 +37,263 @@ class Userprofile extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [[ 'userid', 'first_name', 'last_name', 'city'], 'required'],
-            [['profileid', 'userid'], 'integer'],
-            [['first_name', 'last_name', 'city'], 'string', 'max' => 100],
+            [['username', 'password', 'email', 'firstname', 'lastname', 'phone','confirmpassword'], 'required'],
+            [['created_date', 'last_date'], 'safe'],
+            [['username', 'firstname', 'lastname'], 'string'],
+			[['username','password'] , 'string','max' => 20],
+			[['firstname', 'lastname'], 'string' ,'max' => 150],
+			[['password','confirmpassword'], 'string', 'min' => 6],
+			[['email'],'email'],
+			[['phone'], 'integer'],
+			['phone','validatePhoneno'],
+			
+			[['username'], 'unique','targetClass' => '\app\models\UserProfile', 'message' => 'This Username has already been taken.'],
+		
+		  [['email'], 'unique','targetClass' => '\app\models\UserProfile', 'message' => 'This email address has already been taken.' ],  
+		  
+		   ['confirmpassword', 'compare','compareAttribute'=>'password'], 
         ];
     }
 
+	
     /**
      * @inheritdoc
      */
     public function attributeLabels()
     {
         return [
-            'profileid' => 'Profileid',
-            'userid' => 'Userid',
-            'first_name' => 'First Name',
-            'last_name' => 'Last Name',
-            'city' => 'City',
+            'id' => 'ID',
+            'username' => 'Username',
+            'password' => 'Password',
+            'confirmpassword' => 'Confirm Password',
+            'email' => 'Email',
+            'firstname' => 'Firstname',
+            'lastname' => 'Lastname',
+            'status' => 'Status',
+            'phone' => 'Phone',
+            'created_date' => 'Created Date',
+            'last_date' => 'Last Date',
         ];
+    }
+	
+	public function validatePhoneno(){
+		if(preg_match('/^[0-9-\/\s\d]+$/i',$this->phone) !==true){
+		$this->addError('phone', 'Only spaces and hyphens are allowed with numbers');
+		return false;
+		}
+	}
+
+	public function getFullname(){	
+		$fullname = "";
+		if(!empty(trim($this->firstname)) || !empty(trim($this->lastname)))
+		{
+			$fullname = $this->firstname." ".$this->lastname;
+		} 
+       
+		return strtolower($fullname);
+	}
+	
+	
+	public function getBrowser() 
+	{ 
+		$u_agent = $_SERVER['HTTP_USER_AGENT']; 
+		$bname = 'Unknown';
+		$platform = 'Unknown';
+		$version= "";
+
+		//First get the platform?
+	/* 	if (preg_match('/linux/i', $u_agent)) {
+			$platform = 'linux';
+		}
+		elseif (preg_match('/macintosh|mac os x/i', $u_agent)) {
+			$platform = 'mac';
+		}
+		elseif (preg_match('/windows|win32/i', $u_agent)) {
+			$platform = 'windows';
+		} */
+		
+		// New Code for test
+		
+		$os_array       =   array(
+								'/windows nt 6.2/i'     =>  'Windows 8',
+								'/windows nt 6.1/i'     =>  'Windows 7',
+								'/windows nt 6.0/i'     =>  'Windows Vista',
+								'/windows nt 5.2/i'     =>  'Windows Server 2003/XP x64',
+								'/windows nt 5.1/i'     =>  'Windows XP',
+								'/windows xp/i'         =>  'Windows XP',
+								'/windows nt 5.0/i'     =>  'Windows 2000',
+								'/windows me/i'         =>  'Windows ME',
+								'/win98/i'              =>  'Windows 98',
+								'/win95/i'              =>  'Windows 95',
+								'/win16/i'              =>  'Windows 3.11',
+								'/macintosh|mac os x/i' =>  'Mac OS X',
+								'/mac_powerpc/i'        =>  'Mac OS 9',
+								'/linux/i'              =>  'Linux',
+								'/ubuntu/i'             =>  'Ubuntu',
+								'/iphone/i'             =>  'iPhone',
+								'/ipod/i'               =>  'iPod',
+								'/ipad/i'               =>  'iPad',
+								'/android/i'            =>  'Android',
+								'/blackberry/i'         =>  'BlackBerry',
+								'/webos/i'              =>  'Mobile'
+							);
+		
+		foreach ($os_array as $regex => $value) { 
+
+			if (preg_match($regex, $u_agent)) {
+				$os_platform    =   $value;
+			}
+
+		} 
+		
+			$platform =  $os_platform;
+		
+		
+		
+		
+		// Next get the name of the useragent yes seperately and for good reason
+		if(preg_match('/MSIE/i',$u_agent) && !preg_match('/Opera/i',$u_agent)) 
+		{ 
+			$bname = 'Internet Explorer'; 
+			$ub = "MSIE"; 
+		} 
+		elseif(preg_match('/Firefox/i',$u_agent)) 
+		{ 
+			$bname = 'Mozilla Firefox'; 
+			$ub = "Firefox"; 
+		} 
+		elseif(preg_match('/Chrome/i',$u_agent)) 
+		{ 
+			$bname = 'Google Chrome'; 
+			$ub = "Chrome"; 
+		} 
+		elseif(preg_match('/Safari/i',$u_agent)) 
+		{ 
+			$bname = 'Apple Safari'; 
+			$ub = "Safari"; 
+		} 
+		elseif(preg_match('/Opera/i',$u_agent)) 
+		{ 
+			$bname = 'Opera'; 
+			$ub = "Opera"; 
+		} 
+		elseif(preg_match('/Netscape/i',$u_agent)) 
+		{ 
+			$bname = 'Netscape'; 
+			$ub = "Netscape"; 
+		} 
+		
+		// finally get the correct version number
+		$known = array('Version', $ub, 'other');
+		$pattern = '#(?<browser>' . join('|', $known) .
+		')[/ ]+(?<version>[0-9.|a-zA-Z.]*)#';
+		if (!preg_match_all($pattern, $u_agent, $matches)) {
+			// we have no matching number just continue
+		}
+		
+		// see how many we have
+		$i = count($matches['browser']);
+		if ($i != 1) {
+			//we will have two since we are not using 'other' argument yet
+			//see if version is before or after the name
+			if (strripos($u_agent,"Version") < strripos($u_agent,$ub)){
+				$version= $matches['version'][0];
+			}
+			else {
+				$version= $matches['version'][1];
+			}
+		}
+		else {
+			$version= $matches['version'][0];
+		}
+		
+		// check if we have a number
+		if ($version==null || $version=="") {$version="?";}
+		
+		
+
+		 $ipaddress = Yii::$app->getRequest()->getUserIP();
+	
+	 /* $client  = @$_SERVER['HTTP_CLIENT_IP'];
+    $forward = @$_SERVER['HTTP_X_FORWARDED_FOR'];
+    $remote  = @$_SERVER['REMOTE_ADDR'];
+    $result  = array('country'=>'', 'city'=>'');
+    if(filter_var($client, FILTER_VALIDATE_IP)){
+        $ip = $client;
+    }elseif(filter_var($forward, FILTER_VALIDATE_IP)){
+        $ip = $forward;
+    }else{
+        $ip = $remote;
+    } */
+	
+	
+		 $ip_data = @json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=".$ipaddress));    
+		if($ip_data && $ip_data->geoplugin_countryName != null){
+			$result['country'] = $ip_data->geoplugin_countryCode;
+			$result['city'] = $ip_data->geoplugin_city;
+		}
+		
+		$location = "";
+		if(!empty($result))
+			$location = $result['city'].', '.$result['country'];
+		
+		return array(
+			'ipaddress' => $ipaddress,			
+			'browser'      => $bname,			
+			'os'  => $platform,
+			'location'  => $location,
+			
+			//'userAgent' => $u_agent,
+			//'version'   => $version,
+			//'pattern'    => $pattern
+		);
+	} 
+
+	
+	/**
+     * Finds user by username
+     *
+     * @param string $username
+     * @return static|null
+     */
+    public static function findByUsername($username)
+    {        
+        foreach (self::$users as $user) {          
+            if (strcasecmp($user['username'], $username) === 0) {
+                return new static($user);
+            }
+        }
+
+        return null;
+    }
+	
+	public function deleteUsers($id)
+    {
+		$connection 	= Yii::$app->getDb();
+		$tshirtaccessTable 	= TshirtAccess::tableName();
+        $userRoleTable 		= UserRole::tableName();
+        $trackUserTable		= TrackUsers::tableName(); 
+		$userActivityTable 	= UsersActivity::tableName();
+        $tshirtUserMetaTable= TshirtUserMeta::tableName();
+		
+		$transaction 	= $connection->beginTransaction();
+        try {
+			$sql1 = "DELETE FROM ".$tshirtaccessTable." WHERE userid=:userid";
+			$sql2 = "DELETE FROM ".$userRoleTable." WHERE userid=:userid";
+			$sql3 = "DELETE FROM ".$trackUserTable." WHERE userid=:userid";
+			$sql4 = "DELETE FROM ".$userActivityTable." WHERE userid=:userid";
+			$sql5 = "DELETE FROM ".$tshirtUserMetaTable." WHERE userid=:userid";
+			
+			$connection->createCommand($sql1)->bindValue(':userid',$id)->execute();
+			$connection->createCommand($sql2)->bindValue(':userid',$id)->execute();
+			$connection->createCommand($sql3)->bindValue(':userid',$id)->execute();
+			$connection->createCommand($sql4)->bindValue(':userid',$id)->execute();
+			$connection->createCommand($sql5)->bindValue(':userid',$id)->execute();
+			
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            //throw $e;
+        }
     }
 }
